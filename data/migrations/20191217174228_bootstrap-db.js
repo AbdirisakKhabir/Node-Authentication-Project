@@ -1,4 +1,4 @@
-exports.up = function (knex) {
+texports.up = function (knex) {
   return knex.schema
     .createTable('roles', roles => {
       roles.increments('role_id')

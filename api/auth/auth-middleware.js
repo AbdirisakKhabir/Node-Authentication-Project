@@ -1,7 +1,35 @@
 // require JWT_SECRET from .env file // use this secret!
 // require DB to get the user information
+const jwt = require('jsonwebtoken');
+const Users = require('../users/users-model');
+const db = require('../../data/db-config.js')
+const JWT_SECRET = "sirwayn";
 
 const restricted = (req, res, next) => {
+const token = req.headers.authorization;
+    console.log("RESITERED FUN")
+    if (token) {
+        console.log("TOKEN SUCCES")
+        jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+            if(err != null) {
+                res.status(401).json({ message: 'access is restricted' });
+                return;
+            }
+
+            const user = await Users.findById(decoded.subject);
+            console.log("USER", user)
+            if (user == null) {
+                res.status(401).json({ message: 'access is restricted' });
+                return;
+            }
+            
+            console.log("decoded", decoded)
+            req.decodedJwt = decoded
+            console.log("req.decodedJwt", req.decodedJwt)
+            next();
+
+        })
+    }
   /*
     If the user does not provide a token in the Authorization header:
     status 401
@@ -34,6 +62,13 @@ const checkRoleType = role_name => (req, res, next) => {
 
 
 const checkUsernameExists = (req, res, next) => {
+  const {username, password} = req.body;
+  const existinUser = Users.findBy({username}).first();
+  if(existinUser == null){
+   res.status(400).json({message: "username Does not Exist"})
+    return;
+  }
+  next();
   /*
     If the username in req.body does NOT exist in the database
     status 401
@@ -41,7 +76,7 @@ const checkUsernameExists = (req, res, next) => {
       "message": "Invalid credentials"
     }
   */
-}
+  }
 
 
 const validateRoleName = (req, res, next) => {

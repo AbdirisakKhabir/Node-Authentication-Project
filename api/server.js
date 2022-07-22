@@ -15,7 +15,25 @@ const usersRouter = require("./users/users-router.js");
   and a cookie set on the client. The name of the cookie should be "chocolatechip".
  */
 
-const server = express();
+
+
+
+
+const session = require('express-session')
+const server = express()
+const sessionConfig = {
+  name: "chocolatechip",
+  secret: 'MY_SECRET',
+  cookie: {
+    maxAge: 6000 * 60,
+    secure: false,
+    httpOnly: true
+  },
+  resave: false,
+  saveUninitialized: false
+}
+
+server.use(session(sessionConfig))
 
 server.use(helmet());
 server.use(express.json());
